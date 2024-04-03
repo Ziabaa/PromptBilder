@@ -1,0 +1,5 @@
+ {
+    "theme": "a short description of the dialog, for a quick understanding of what is being talked about",
+    "tonality": "reflects the emotional coloring of communication between participants - positive/negative/neutrally",
+    "classification": "which of the following categories the call belongs to, based on its content, purpose or other characteristics - finances/maintenance/new connection/reconnection"
+ }
