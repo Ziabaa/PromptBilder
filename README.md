@@ -12,3 +12,7 @@ Give the answer in the format of JSON, with a layered structure:
   "tonality": ""
   "classification": ""
 }`
+
+# Структура класу
+
+![structure](imeg/structureClass.png)

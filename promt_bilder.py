@@ -39,8 +39,11 @@ class PromptBuilder:
     @classmethod
     def do_structure(cls):
         string = "{\n"
-        for key in cls.criteria:
-            string += "  \"" + key + "\": " + "\"\"" + '\n'
+        for i, key in enumerate(cls.criteria):
+            string += "  \"" + key + "\": " + "\"\""
+            if i != len(cls.criteria) - 1:
+                string += ","
+            string += '\n'
 
         string += "}"
         return string
