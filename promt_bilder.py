@@ -57,7 +57,7 @@ class PromptBuilder:
 
         final_prompt = start_prompt + param_prompt
         json_structure_prompt = "Give the answer in the format of JSON, with a layered structure: \n"
-        final_prompt += json_structure_prompt + structure_prompt
+        final_prompt += json_structure_prompt + structure_prompt + "\nGive the answers in English."
         return final_prompt
 
     @classmethod
