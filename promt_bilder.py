@@ -3,45 +3,47 @@ import tiktoken
 
 
 class PromptBuilder:
-    criteria = []
-    param_prompt = []
+    def __init__(self):
+        self.criteria = []
+        self.param_prompt = []
+        self.final_prompt = ""
 
     @staticmethod
-    def get_data_json(file):
+    def get_data_json_file(file):
         with open(file, encoding='utf-8') as f:
             file_content = f.read()
             templates = json.loads(file_content)
 
         return templates
 
-    @staticmethod
-    def token_counter(string):
+    @classmethod
+    def token_counter(cls):
         encoding = tiktoken.get_encoding("cl100k_base")
-        num_tokens = len(encoding.encode(string))
+        num_tokens = len(encoding.encode(str))
         return num_tokens
 
-    @classmethod
-    def write_data(cls, data):
+    def write_data(self, data):
+        self.criteria.clear()
+        self.param_prompt.clear()
         for key, value in data.items():
             if not key or not value:
                 print("At least one parameter is empty!")
             else:
-                cls.criteria.append(key)
-                cls.param_prompt.append(value)
+                self.criteria.append(key)
+                self.param_prompt.append(value)
 
-    @classmethod
-    def do_prompt(cls):
+    def do_prompt(self):
         string = ""
-        for prompt, key in zip(cls.param_prompt, cls.criteria):
+        for prompt, key in zip(self.param_prompt, self.criteria):
             string += key + " - " + prompt + '\n'
         return string
 
-    @classmethod
-    def do_structure(cls):
+    @staticmethod
+    def do_structure(criteria):
         string = "{\n"
-        for i, key in enumerate(cls.criteria):
+        for i, key in enumerate(criteria):
             string += "  \"" + key + "\": " + "\"\""
-            if i != len(cls.criteria) - 1:
+            if i != len(criteria) - 1:
                 string += ","
             string += '\n'
 
@@ -60,14 +62,24 @@ class PromptBuilder:
         final_prompt += json_structure_prompt + structure_prompt + "\nGive the answers in English."
         return final_prompt
 
-    @classmethod
-    def create_prompt(cls, file):
-        prompt = cls
+    def create_prompt_file(self, file):
+        data = self.get_data_json_file(file)
+        self.write_data(data)
 
-        data = prompt.get_data_json(file)
-        prompt.write_data(data)
+        param = self.do_prompt()
+        struct = self.do_structure(self.criteria)
 
-        param = prompt.do_prompt()
-        struct = prompt.do_structure()
+        self.final_prompt = self.connect_final_prompt(param, struct)
 
-        return prompt.connect_final_prompt(param, struct)
+        return self.final_prompt
+
+    def create_prompt_str(self, data):
+        self.write_data(data)
+
+        param = self.do_prompt()
+        struct = self.do_structure(self.criteria)
+
+        self.final_prompt = self.connect_final_prompt(param, struct)
+
+        return self.final_prompt
+
