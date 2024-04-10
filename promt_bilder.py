@@ -7,6 +7,7 @@ class PromptBuilder:
         self.criteria = []
         self.param_prompt = []
         self.final_prompt = ""
+        self.final_structure = ""
 
     @staticmethod
     def get_data_json_file(file):
@@ -16,10 +17,15 @@ class PromptBuilder:
 
         return templates
 
-    @classmethod
-    def token_counter(cls):
+    @staticmethod
+    def get_data_json_string(json_string):
+        templates = json.loads(json_string)
+        return templates
+
+    @staticmethod
+    def token_counter(string):
         encoding = tiktoken.get_encoding("cl100k_base")
-        num_tokens = len(encoding.encode(str))
+        num_tokens = len(encoding.encode(string))
         return num_tokens
 
     def write_data(self, data):
@@ -48,6 +54,7 @@ class PromptBuilder:
             string += '\n'
 
         string += "}"
+
         return string
 
     @staticmethod
@@ -62,24 +69,30 @@ class PromptBuilder:
         final_prompt += json_structure_prompt + structure_prompt + "\nGive the answers in English."
         return final_prompt
 
-    def create_prompt_file(self, file):
-        data = self.get_data_json_file(file)
-        self.write_data(data)
+    @staticmethod
+    def create_prompt_file(file):
+        build = PromptBuilder()
+        data = build.get_data_json_file(file)
 
-        param = self.do_prompt()
-        struct = self.do_structure(self.criteria)
+        build.write_data(data)
 
-        self.final_prompt = self.connect_final_prompt(param, struct)
+        param = build.do_prompt()
+        struct = build.do_structure(build.criteria)
 
-        return self.final_prompt
+        build.final_prompt = build.connect_final_prompt(param, struct)
 
-    def create_prompt_str(self, data):
-        self.write_data(data)
+        return build.final_prompt
 
-        param = self.do_prompt()
-        struct = self.do_structure(self.criteria)
+    @staticmethod
+    def create_prompt_str(sting_json):
 
-        self.final_prompt = self.connect_final_prompt(param, struct)
+        build = PromptBuilder()
+        data = build.get_data_json_string(sting_json)
+        build.write_data(data)
 
-        return self.final_prompt
+        param = build.do_prompt()
+        struct = build.do_structure(build.criteria)
 
+        build.final_prompt = build.connect_final_prompt(param, struct)
+
+        return build.final_prompt

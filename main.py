@@ -1,23 +1,29 @@
 from promt_bilder import PromptBuilder
-import json
+import pymssql
+from db import DataBase
 
-# Создание экземпляра класса PromptBuilder
-builder1 = PromptBuilder()
+conn = pymssql.connect(
+    host='80.73.9.240',
+    user='gonchar',
+    password='8c22T3xGpK',
+    database='Calls'
+)
 
-# Создание файла критериев
-prompt1 = builder1.create_prompt_file("criteria.json")
-print(prompt1)
+database = DataBase(conn)
 
-print("-------------------------------------")
+query = """SELECT cl.Code, cl.Promt
+    FROM CheckGroupLists cgl
+    JOIN CheckLists cl ON cgl.CheckList = cl.id
+    WHERE cgl.CheckGroup = 3
+    FOR JSON PATH;"""
 
-with open('criteria.json', encoding='utf-8') as f:
-    file_content = f.read()
-    templates = json.loads(file_content)
+rows = database.execute_query_json(query)
 
-# Создание второго экземпляра класса PromptBuilder
-builder2 = PromptBuilder()
+res = database.formatting_to_json(rows)
 
-# Создание строки промпта из шаблонов
-prompt2 = builder2.create_prompt_str(templates)
-print(builder2.do_structure(builder2.criteria))
-print(prompt2)
+
+prompt = PromptBuilder().create_prompt_str(res)
+
+print(prompt)
+
+conn.close()
