@@ -22,7 +22,6 @@ class DataBase:
         cursor = self.connect.cursor()
         cursor.execute(query)
         result = cursor.fetchall()
-        # res_json = DataBase.formatting_to_json(result)
         return result
 
     @staticmethod
