@@ -58,7 +58,14 @@ class PromptBuilder:
         return string
 
     @staticmethod
-    def connect_final_prompt(param_prompt, structure_prompt):
+    def connect_final_prompt(param_prompt, structure_prompt, language):
+        if language == "en":
+            lang = "English"
+        elif language == "ru":
+            lang = "Russian"
+        else:
+            lang = "Ukrainian"
+
         start_prompt = ("Please analyze the given dialogues by carefully considering the criteria I will provide. It "
                         "is essential to provide accurate and specific responses. Kindly ensure that you cover all "
                         "the necessary details and do not overlook any important points. Here are the essential "
@@ -66,33 +73,27 @@ class PromptBuilder:
 
         final_prompt = start_prompt + param_prompt
         json_structure_prompt = "Give the answer in the format of JSON, with a layered structure: \n"
-        final_prompt += json_structure_prompt + structure_prompt + "\nGive the answers in English."
+        final_prompt += json_structure_prompt + structure_prompt + f"\nGive the answers in {lang}."
         return final_prompt
 
     @staticmethod
-    def create_prompt_file(file):
+    def create_prompt(data, lang, param: str = "string") -> str:  # Param is: String json or file json ... string/file
         build = PromptBuilder()
-        data = build.get_data_json_file(file)
 
+        # Проверка корректности параметра param
+        if param not in {"string", "file"}:
+            raise ValueError("Invalid data source. Please specify 'file' or 'string'.")
+
+        # Обработка данных в зависимости от параметра param
+        if param == "file":
+            data = build.get_data_json_file(data)
+        elif param == "string":
+            data = build.get_data_json_string(data)
+
+        # Создание промпта
         build.write_data(data)
-
         param = build.do_prompt()
         struct = build.do_structure(build.criteria)
+        final_prompt = build.connect_final_prompt(param, struct, lang)
 
-        build.final_prompt = build.connect_final_prompt(param, struct)
-
-        return build.final_prompt
-
-    @staticmethod
-    def create_prompt_str(sting_json):
-
-        build = PromptBuilder()
-        data = build.get_data_json_string(sting_json)
-        build.write_data(data)
-
-        param = build.do_prompt()
-        struct = build.do_structure(build.criteria)
-
-        build.final_prompt = build.connect_final_prompt(param, struct)
-
-        return build.final_prompt
+        return final_prompt

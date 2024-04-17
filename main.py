@@ -1,4 +1,4 @@
-from promt_bilder import PromptBuilder
+from promt_builder import PromptBuilder
 import pymssql
 from db import DataBase
 
